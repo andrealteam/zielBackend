@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const {
+  registerTeacher,
+  login,
   getMe,
   getTeachers,
   getTeacher,
@@ -11,6 +13,10 @@ const {
 const { protect, authorize } = require('../middleware/auth');
 const advancedResults = require('../middleware/advancedResults');
 const Teacher = require('../models/Teacher');
+
+// Public auth routes
+router.post('/auth/register', registerTeacher);
+router.post('/auth/login', login);
 
 // Protected routes
 router.use(protect);
