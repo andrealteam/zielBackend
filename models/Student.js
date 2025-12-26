@@ -1,0 +1,91 @@
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const StudentSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Please add a name']
+  },
+  email: {
+    type: String,
+    required: [true, 'Please add an email'],
+    unique: true,
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email'
+    ]
+  },
+  contactNo: {
+    type: String,
+    required: [true, 'Please add a contact number']
+  },
+  address: {
+    type: String,
+    required: [true, 'Please add an address']
+  },
+  courses: {
+    physics: { selected: Boolean, fee: Number },
+    chemistry: { selected: Boolean, fee: Number },
+    math: { selected: Boolean, fee: Number },
+    biology: { selected: Boolean, fee: Number },
+    computerScience: { selected: Boolean, fee: Number }
+  },
+  courseMode: {
+    type: String,
+    enum: ['online', 'offline'],
+    default: 'online'
+  },
+  role: {
+    type: String,
+    enum: ['student', 'admin'],
+    default: 'student'
+  },
+  duration: {
+    type: Number,
+    required: [true, 'Please add a duration']
+  },
+  totalAmount: {
+    type: Number,
+    required: [true, 'Please add total amount']
+  },
+  password: {
+    type: String,
+    required: [true, 'Please add a password'],
+    minlength: 6,
+    select: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Encrypt password using bcrypt
+StudentSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Sign JWT and return
+StudentSchema.methods.getSignedJwtToken = function() {
+  return jwt.sign(
+    { id: this._id, role: this.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE || '30d' }
+  );
+};
+
+// Match user entered password to hashed password in database
+StudentSchema.methods.matchPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+module.exports = mongoose.model('Student', StudentSchema);
