@@ -1,3 +1,4 @@
+// @/home/web2/Documents/Projects/Ziel Classes V1/backend/zielBackend/server.js
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -9,12 +10,6 @@ const errorHandler = require('./middleware/error');
 
 // Load env vars
 dotenv.config({ path: path.join(__dirname, '.env') });
-
-// console.log('Environment variables loaded:', {
-//   NODE_ENV: process.env.NODE_ENV,
-//   MONGODB_URI: process.env.MONGODB_URI ? '*** MongoDB URI loaded ***' : 'MongoDB URI not found',
-//   PORT: process.env.PORT
-// });
 
 // Connect to database
 connectDB();
@@ -36,10 +31,17 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Request logging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Mount routers
 app.use('/api/v1/students', students);
-app.use('/api/v1/auth/teachers', teachers);
+app.use('/api/v1/teachers', teachers);
 
+// Error handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
