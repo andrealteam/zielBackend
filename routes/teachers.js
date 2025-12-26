@@ -14,9 +14,9 @@ const { protect, authorize } = require('../middleware/auth');
 const advancedResults = require('../middleware/advancedResults');
 const Teacher = require('../models/Teacher');
 
-// Public routes
-router.post('/register', registerTeacher);
-router.post('/login', login);
+// Public auth routes
+router.post('/auth/register', registerTeacher);
+router.post('/auth/login', login);
 
 // Protected routes
 router.use(protect);
