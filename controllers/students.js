@@ -2,6 +2,22 @@ const Student = require('../models/Student');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 
+// @desc    Get total count of students
+// @route   GET /api/v1/students/count
+// @access  Private/Admin
+exports.countStudents = asyncHandler(async (req, res, next) => {
+  try {
+    const count = await Student.countDocuments();
+    res.status(200).json({
+      success: true,
+      count
+    });
+  } catch (err) {
+    console.error('Error counting students:', err);
+    return next(new ErrorResponse('Error counting students', 500));
+  }
+});
+
 // @desc    Register a new student
 // @route   POST /api/v1/students
 // @access  Public
