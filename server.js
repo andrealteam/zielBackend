@@ -15,6 +15,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 connectDB();
 
 // Route files
+const auth = require('./routes/auth');
 const students = require('./routes/students');
 const teachers = require('./routes/teachers');
 
@@ -38,6 +39,7 @@ app.use((req, res, next) => {
 });
 
 // Mount routers
+app.use('/api/v1/auth', auth);
 app.use('/api/v1/students', students);
 app.use('/api/v1/teachers', teachers);
 
