@@ -24,12 +24,41 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add an address']
   },
+  className: {
+    type: String,
+    required: [true, 'Please enter a class']
+  },
   courses: {
-    physics: { selected: Boolean, fee: Number },
-    chemistry: { selected: Boolean, fee: Number },
-    math: { selected: Boolean, fee: Number },
-    biology: { selected: Boolean, fee: Number },
-    computerScience: { selected: Boolean, fee: Number }
+    physics: { 
+      selected: Boolean, 
+      fee: Number, 
+      classes: Number,
+      total: Number 
+    },
+    chemistry: { 
+      selected: Boolean, 
+      fee: Number, 
+      classes: Number,
+      total: Number 
+    },
+    math: { 
+      selected: Boolean, 
+      fee: Number, 
+      classes: Number,
+      total: Number 
+    },
+    biology: { 
+      selected: Boolean, 
+      fee: Number, 
+      classes: Number,
+      total: Number 
+    },
+    computerScience: { 
+      selected: Boolean, 
+      fee: Number, 
+      classes: Number,
+      total: Number 
+    }
   },
   courseMode: {
     type: String,
@@ -41,9 +70,19 @@ const StudentSchema = new mongoose.Schema({
     enum: ['student', 'admin'],
     default: 'student'
   },
-  duration: {
-    type: Number,
-    required: [true, 'Please add a duration']
+  startDate: {
+    type: Date,
+    required: [true, 'Please add a start date']
+  },
+  endDate: {
+    type: Date,
+    required: [true, 'Please add an end date'],
+    validate: {
+      validator: function(endDate) {
+        return endDate > this.startDate;
+      },
+      message: 'End date must be after start date'
+    }
   },
   totalAmount: {
     type: Number,

@@ -11,17 +11,40 @@ exports.registerStudent = asyncHandler(async (req, res, next) => {
     email,
     contactNo,
     address,
+    className,
     courses,
     courseMode,
-    duration,
+    startDate,
+    endDate,
     password
   } = req.body;
 
-  // Calculate total amount from selected courses
+  // Calculate total amount and individual course totals
   let totalAmount = 0;
-  Object.values(courses).forEach(course => {
+  const updatedCourses = { ...courses };
+  
+  Object.keys(updatedCourses).forEach(courseKey => {
+    const course = updatedCourses[courseKey];
     if (course.selected && course.fee) {
-      totalAmount += parseInt(course.fee, 10);
+      const fee = parseInt(course.fee, 10) || 0;
+      const classes = parseInt(course.classes, 10) || 1;
+      const courseTotal = fee * classes;
+      
+      updatedCourses[courseKey] = {
+        ...course,
+        fee: fee,
+        classes: classes,
+        total: courseTotal
+      };
+      
+      totalAmount += courseTotal;
+    } else {
+      updatedCourses[courseKey] = {
+        selected: false,
+        fee: 0,
+        classes: 0,
+        total: 0
+      };
     }
   });
 
@@ -31,9 +54,11 @@ exports.registerStudent = asyncHandler(async (req, res, next) => {
     email,
     contactNo,
     address,
-    courses,
+    className,
+    courses: updatedCourses,
     courseMode,
-    duration,
+    startDate,
+    endDate,
     totalAmount,
     password
   });
@@ -85,14 +110,33 @@ exports.updateStudent = asyncHandler(async (req, res, next) => {
     );
   }
 
-  // Recalculate total amount if courses are being updated
+  // Recalculate total amount and individual course totals if courses are being updated
   if (req.body.courses) {
     let totalAmount = 0;
-    Object.values(req.body.courses).forEach(course => {
-      if (course.selected && course.fee) {
-        totalAmount += parseInt(course.fee, 10);
+    const updatedCourses = { ...req.body.courses };
+    
+    Object.keys(updatedCourses).forEach(courseKey => {
+      const course = updatedCourses[courseKey];
+      if (course.selected && course.fee && course.classes) {
+        const fee = parseInt(course.fee, 10) || 0;
+        const classes = parseInt(course.classes, 10) || 1;
+        const courseTotal = fee * classes;
+        
+        updatedCourses[courseKey] = {
+          ...course,
+          total: courseTotal
+        };
+        
+        totalAmount += courseTotal;
+      } else {
+        updatedCourses[courseKey] = {
+          ...course,
+          total: 0
+        };
       }
     });
+    
+    req.body.courses = updatedCourses;
     req.body.totalAmount = totalAmount;
   }
 
